@@ -1,7 +1,7 @@
+import os
+from rich import print
 from pynput import keyboard
 
-# defs
-def on_press(key, inje)
 
-# This module handles all userinput checks and logic.
-if 
+
+# class UserInput():

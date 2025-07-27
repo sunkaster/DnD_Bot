@@ -36,9 +36,8 @@ async def on_message(message):
                 results = dice_roller_instance.roll_dice(messageContent, command)
                 x = "\n".join(results)
                 await message.channel.send(f'{x}')
-                
+
             break
-        
 
 client.run(api_key)
 

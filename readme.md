@@ -2,11 +2,16 @@
 
 A Discord bot for Dungeons & Dragons with dice rolling and character creation features.
 
-## Features
+## Current features
 
 - **Dice Rolling**: Roll dice with complex expressions (e.g., `2d10`, `5d6+3`, `(2d10)x2`)
 - **Character Creation**: Generate D&D character stats using 4d6 drop lowest method
 - **Slash Commands**: Modern Discord slash command interface
+
+## Possible future features
+- **Google calender**: Add and manage events on a calender
+- **Complete Character Creation**: Create and manage character sheets saved to json files.
+- **Actual-Average-Damage**: Input all attacks for a turn and target AC and get average damage per turn based on chance to hit.
 
 ## Setup Instructions
 

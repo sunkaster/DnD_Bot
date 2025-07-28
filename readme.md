@@ -54,3 +54,16 @@ docker-compose up --build
 3. Go to the "Bot" section and create a bot
 4. Copy the bot token and add it to your `.env` file
 5. Invite the bot to your server with appropriate permissions (Send Messages, Use Slash Commands)
+
+## Possible errors
+1. Permission denied: unable to get image
+'''bash
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# Log out and log back in, or run:
+newgrp docker
+
+# Verify the group membership
+groups $USER
+'''

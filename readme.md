@@ -57,13 +57,13 @@ docker-compose up --build
 
 ## Possible errors
 1. Permission denied: unable to get image
-'''bash
-# Add your user to the docker group
+```bash
+### Add your user to the docker group
 sudo usermod -aG docker $USER
 
-# Log out and log back in, or run:
+### Log out and log back in, or run:
 newgrp docker
 
-# Verify the group membership
+### Verify the group membership
 groups $USER
-'''
+```

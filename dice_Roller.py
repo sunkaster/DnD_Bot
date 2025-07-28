@@ -3,12 +3,10 @@ import random
 class Dice_Roller:
     def __init__(self):
         self.message = ""
-        self.command = ""
 
-    def roll_dice(self, message, command):
-        message = message.replace(f"{command}", "").strip()
+    def roll_dice(self, message):
+        message = message.strip()
         messages = []
-        
         rollsResults = []
 
         if " " in message:
@@ -21,45 +19,69 @@ class Dice_Roller:
 
         for i in messages:
             roll_results=[]
-            positiveInt=0
-            negativeInt=0
-            rolls = []
-            negativeString = ""
-            messageFormatted = []
+            negative_roll_results=[]
+            positiveInts = []
+            positiveInt = 0
+            negativeInts = []
+            negativeInt = 0
+            negativeRolls=[]
+            rolls=[]
+            negativeStrings = []
             diceRollMultiplier = 1
-            g=0
             
             if "x" in i:
                 diceRollMultiplier = int(i.split("x")[1])
                 i = i.split("x")[0].replace("(", "").replace(")", "")
 
+            # Split combined dice inputs into dice piles
             if "+" in i:
-                if "-" in i:
-                    negativeString = i.split("-")[1]
+                i = i.split("+")
+
+            # Negative dice and digit handler
+            if "-" in i:
+                # Split i at "-" and take the value before the negative sign, which if not empty string then is either a dice "1d6" or a digit.
+                if i.split("-", 1)[0] != "" and "d" in i.split("-", 1)[0]:
+                    rolls.append(i.split("-", 1)[0])
+                elif i.split("-", 1)[0] != "" and i.split("-", 1)[0].isdigit():
+                    positiveInts.append(int(i.split("-", 1)[0]))
+                
+                # Now that we've checked for any non negative rolls or digit we seperate the negative rolls and roll them.
+                negativeStrings = i.split("-", 1)[1].split("-")
+                for negativeString in negativeStrings:
                     if negativeString.isdigit():
-                        negativeInt = -int(negativeString)
-                    i = i.split("-")[0]
-                
-                messageFormatted = i.split("+")
-                
-                for item in messageFormatted:
+                        negativeInts.append(-int(negativeString))
+                    if "d" in negativeString:
+                        negativeRolls.append(negativeString)
+                        
+                i = i.split("-")[0]
+                        
+            # Sort positive values
+            if isinstance(i, list):
+                for item in i:
                     if "d" in item:
                         rolls.append(item)
-                    if not "d" in item and item.isdigit():
-                        positiveInt = int(item)
-                
-            elif "-" in i and "+" not in i:
-                negativeString = i.split("-")[1]
-                messageFormatted = i.split("-")[0]
-
-                if negativeString.isdigit():
-                    negativeInt = -int(negativeString)
-                if "d" in messageFormatted:
-                    rolls.append(messageFormatted)
+                    elif item.isdigit():
+                        positiveInts.append(int(item))
             else:
+                # Handle single string case
                 if "d" in i:
                     rolls.append(i)
+                elif i.isdigit():
+                    positiveInts.append(int(i))
             
+            g=0
+            while g < diceRollMultiplier:
+                g +=1
+                if len(negativeRolls) > 0:
+                    for negativeRoll in negativeRolls:
+                        times_to_roll_negative_dice = int(negativeRoll.split("d")[0])
+                        negative_dice = int(negativeRoll.split("d")[1])
+                        i=0
+                        while i < times_to_roll_negative_dice:
+                            i += 1
+                            negative_roll_results.append(-random.randint(1, negative_dice))
+
+            g=0
             while g < diceRollMultiplier:
                 g +=1
                 if len(rolls) > 0:
@@ -70,12 +92,37 @@ class Dice_Roller:
                         while i < times_to_roll_dice:
                             i += 1
                             roll_results.append(random.randint(1, dice))
-
-            rollsString = "+".join(rolls)
-            rollsStringer = f"{rollsString}{f'+{positiveInt}' if positiveInt > 0 else ''}{f'{negativeInt}' if negativeInt < 0 else ''}"
-            roll_results_string = list(map(str, roll_results))
-            seperateRolls = "+".join(roll_results_string)
-            rollsResults.append(f"Dice Input: {rollsStringer}  --->  Dice Rolls: {seperateRolls} == {sum(roll_results) + positiveInt + negativeInt}")
             
+            if len(positiveInts) > 0:
+                positiveInt = sum(positiveInts)
+            else:
+                positiveInt = 0
+            if len(negativeInts) > 0:
+                negativeInt = sum(negativeInts)
+            else:
+                negativeInt = 0
 
+            # Calculate number modifier
+            modifierInt = positiveInt + negativeInt
+
+            # Formatting rollsStringer for rollsResults
+            rollsStringPositive = "+".join(rolls)
+            rollsStringNegative = "-".join(negativeRolls)
+            rollsString = f"{rollsStringPositive if rollsStringPositive != '' else ''}{rollsStringNegative if rollsStringNegative != '' else ''}"
+            rollsStringer = f"{f'({rollsString})x{diceRollMultiplier}' if diceRollMultiplier != 1 else rollsString}{f'+{modifierInt}' if modifierInt > 0 else ''}{f'{modifierInt}' if modifierInt < 0 else ''}"
+            
+            # Formatting the rollsResult item for return
+            roll_results_strings = list(map(str, roll_results))
+            roll_results_string = "+".join(roll_results_strings)
+            negative_roll_results_strings = list(map(str, negative_roll_results))
+            negative_roll_results_string = "".join(negative_roll_results_strings)
+            seperateRollsResult = f"{roll_results_string}{negative_roll_results_string if negative_roll_results_string != '' else ''}"
+
+            result = sum(roll_results) + sum(negative_roll_results) + modifierInt
+
+            # Adding roll(s) to the return list
+            rollsResults.append(f"""**Dice Input: **{rollsStringer}
+    --> **Dice Rolls:** {seperateRollsResult} = __**{result}**__""")
+            
+        # Return all formatted roll(s)
         return(rollsResults) 

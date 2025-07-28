@@ -11,11 +11,20 @@ The triple backticks (```) create the gray textbox effect you're looking for!
 import dice_roller
 import character_creator
 import os
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
-# Gets api key from the enviromental virable DISCORD_API_KEY
-api_key=os.environ['DISCORD_API_KEY']
+# Load environmental variables into system
+load_result = load_dotenv()
+# Check if the variable is loaded
+api_key = os.environ.get('DISCORD_API_KEY')
+
+# Validate that we have an API key before proceeding
+if not api_key:
+    print("ERROR: DISCORD_API_KEY environment variable not found!")
+    print("Make sure the .env file exists with DISCORD_API_KEY=your_token_here")
+    exit(1)
 
 # Discord intents
 intents=discord.Intents.default()

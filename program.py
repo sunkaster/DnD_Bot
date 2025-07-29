@@ -14,13 +14,11 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+import quotes
 
-# Load environmental variables into system
+# Load environmental variables into system and check if the variable is loaded
 load_result = load_dotenv()
-# Check if the variable is loaded
 api_key = os.environ.get('DISCORD_API_KEY')
-
-# Validate that we have an API key before proceeding
 if not api_key:
     print("ERROR: DISCORD_API_KEY environment variable not found!")
     print("Make sure the .env file exists with DISCORD_API_KEY=your_token_here")
@@ -31,11 +29,15 @@ intents=discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+# Initialize quote cache
+quote_cache = quotes.QuoteCache()
+
 # Runs once during startup
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to discord')
     # Sync slash commands
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.custom, name="Pondering", state="How does Ash always have a fish ready to eat? Where do they come from? ERROR:404 ¤=¤"))
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
@@ -89,6 +91,29 @@ async def ccFourDSix_slash(interaction: discord.Interaction):
         await interaction.response.send_message(f">>> \n{stringResult}\n Sum of all stats: {total_sum_rows}")
     except Exception as e:
         await interaction.response.send_message(f"Error rolling dice: {e}")
+
+# Add this slash command to your bot
+@bot.tree.command(name="inspire_me", description="Get the daily or a random inspiring quote from BOB himself")
+async def quote_slash(interaction: discord.Interaction, type: str = "random"):
+    """Slash command for getting quotes"""
+    try:
+        if type.lower() == "daily":
+            quote = quote_cache.get_daily_quote()
+        else:
+            quote = quote_cache.get_random_quote()
+        
+        if quote:
+            quote_text = quote['text']
+            quote_author = quote['author']
+            
+            # Format the quote nicely
+            formatted_quote = f"*\"{quote_text}\"*\n\n— by **BOB** ||(Actually: **{quote_author}**)||"
+            await interaction.response.send_message(formatted_quote)
+        else:
+            await interaction.response.send_message(">>> Sorry, I was busy pondering another question currently, ask me again later.\n(couldn't fetch a quote right now.)")
+            
+    except Exception as e:
+        await interaction.response.send_message(f"Error fetching quote: {e}")
 
 # Hello
 @bot.tree.command(name="hello", description="say hello")

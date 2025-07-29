@@ -36,6 +36,26 @@ cd DnD_Bot
 docker-compose up --build
 ```
 
+### 3.5 Update program and run with docker
+```bash
+# Stop the current container
+docker compose down
+
+# Make a copy of .env outside of the program
+
+# Delete the old version and repond with y for any questions
+rm -r DnD_Bot/
+
+# Download latest version
+gh repo clone https://github.com/sunkaster/DnD_Bot.git
+
+# Force rebuild without using cache
+docker compose build --no-cache
+
+# Start with the new image
+docker compose up
+```
+
 ### 4. Run without Docker
 1. Install Python dependencies:
    ```bash

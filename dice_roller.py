@@ -32,42 +32,44 @@ class Dice_Roller:
             if "x" in i:
                 diceRollMultiplier = int(i.split("x")[1])
                 i = i.split("x")[0].replace("(", "").replace(")", "")
+            
+            # Parse the expression more carefully
+            # Replace - with +- to make splitting easier
+            i = i.replace("-", "+-")
+            parts = [part for part in i.split("+") if part]  # Remove empty strings
 
             # Split combined dice inputs into dice piles
             if "+" in i:
                 i = i.split("+")
-
-            # Negative dice and digit handler
-            if "-" in i:
-                # Split i at "-" and take the value before the negative sign, which if not empty string then is either a dice "1d6" or a digit.
-                if i.split("-", 1)[0] != "" and "d" in i.split("-", 1)[0]:
-                    rolls.append(i.split("-", 1)[0])
-                elif i.split("-", 1)[0] != "" and i.split("-", 1)[0].isdigit():
-                    positiveInts.append(int(i.split("-", 1)[0]))
-                
-                # Now that we've checked for any non negative rolls or digit we seperate the negative rolls and roll them.
-                negativeStrings = i.split("-", 1)[1].split("-")
-                for negativeString in negativeStrings:
-                    if negativeString.isdigit():
-                        negativeInts.append(-int(negativeString))
-                    if "d" in negativeString:
-                        negativeRolls.append(negativeString)
+            
+            for part in parts:
+                if part.startswith("-"):
+                    # Negative part
+                    part = part[1:]  # Remove the - sign
+                    if "d" in part:
+                        negativeRolls.append(part)
+                    elif part.isdigit():
+                        negativeInts.append(-int(part))
+                else:
+                    # Positive part
+                    if "d" in part:
+                        rolls.append(part)
+                    elif part.isdigit():
+                        positiveInts.append(int(part))
                         
-                i = i.split("-")[0]
-                        
-            # Sort positive values
-            if isinstance(i, list):
-                for item in i:
-                    if "d" in item:
-                        rolls.append(item)
-                    elif item.isdigit():
-                        positiveInts.append(int(item))
-            else:
-                # Handle single string case
-                if "d" in i:
-                    rolls.append(i)
-                elif i.isdigit():
-                    positiveInts.append(int(i))
+        # REMOVE this entire duplicate section (lines 58-71):
+        # if isinstance(i, list):
+        #     for item in i:
+        #         if "d" in item:
+        #             rolls.append(item)
+        #         elif item.isdigit():
+        #             positiveInts.append(int(item))
+        # else:
+        #     # Handle single string case
+        #     if "d" in i:
+        #         rolls.append(i)
+        #     elif i.isdigit():
+        #         positiveInts.append(int(i))
             
             g=0
             while g < diceRollMultiplier:
@@ -108,7 +110,7 @@ class Dice_Roller:
             # Formatting rollsStringer for rollsResults
             rollsStringPositive = "+".join(rolls)
             rollsStringNegative = "-".join(negativeRolls)
-            rollsString = f"{rollsStringPositive if rollsStringPositive != '' else ''}{rollsStringNegative if rollsStringNegative != '' else ''}"
+            rollsString = f"{rollsStringPositive if rollsStringPositive != '' else ''}{f'-{rollsStringNegative}' if rollsStringNegative != '' else ''}"
             rollsStringer = f"{f'({rollsString})x{diceRollMultiplier}' if diceRollMultiplier != 1 else rollsString}{f'+{modifierInt}' if modifierInt > 0 else ''}{f'{modifierInt}' if modifierInt < 0 else ''}"
             
             # Formatting the rollsResult item for return
@@ -122,7 +124,7 @@ class Dice_Roller:
 
             # Adding roll(s) to the return list
             rollsResults.append(f"""**Dice Input: **{rollsStringer}
-    --> **Dice Rolls:** {seperateRollsResult} = __**{result}**__""")
+    --> **Dice Rolls:** {seperateRollsResult}(+{modifierInt}) = __**{result}**__""")
             
         # Return all formatted roll(s)
         return(rollsResults) 

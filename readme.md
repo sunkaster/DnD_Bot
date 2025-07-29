@@ -6,7 +6,7 @@ A Discord bot for Dungeons & Dragons with dice rolling and character creation fe
 
 - **Dice Rolling**: Roll dice with complex expressions (e.g., `2d10`, `5d6+3`, `(2d10)x2`)
 - **Character Creation**: Generate D&D character stats using 4d6 drop lowest method
-- **Slash Commands**: Modern Discord slash command interface
+- **Inspirational quotes**: Get a an inspirational quote
 
 ## Possible future features
 - **Google calender**: Add and manage events on a calender
@@ -71,6 +71,7 @@ docker compose up
 - `/roll <dice>` - Roll dice (e.g., `/roll 2d10+5`)
 - `/4d6_drop_lowest` - Generate D&D character stats
 - `/hello` - Simple greeting command
+- `/inspire_me` - Get sinpirational quote
 
 ## Discord Bot Setup
 

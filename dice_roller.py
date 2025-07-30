@@ -2,129 +2,87 @@ import random
 
 class Dice_Roller:
     def __init__(self):
-        self.message = ""
+        self.dice = ""
 
-    def roll_dice(self, message):
-        message = message.strip()
-        messages = []
-        rollsResults = []
-
-        if " " in message:
-            message = message.replace(" ", "")
-
-        if "," in message:
-            messages = message.split(",")
-        else:
-            messages.append(message)
-
-        for i in messages:
-            roll_results=[]
-            negative_roll_results=[]
-            positiveInts = []
-            positiveInt = 0
-            negativeInts = []
-            negativeInt = 0
-            negativeRolls=[]
-            rolls=[]
-            negativeStrings = []
-            diceRollMultiplier = 1
+    def roll_dice(self, dice: str):
+        results = []
+        input_string = dice.lower().replace(" ", "")
+        
+        # Split by commas for multiple dice groups
+        dice_groups = input_string.split(",")
+        
+        for dice_group in dice_groups:
+            dice_group = dice_group.replace("(", "").replace(")", "")
             
-            if "x" in i:
-                diceRollMultiplier = int(i.split("x")[1])
-                i = i.split("x")[0].replace("(", "").replace(")", "")
+            # Handle multiplier (e.g., (2d6)x3)
+            multiplier = 1
+            if "x" in dice_group:
+                parts = dice_group.split("x")
+                if len(parts) == 2 and parts[1].isdigit():
+                    multiplier = int(parts[1])
+                    dice_group = parts[0]
             
-            # Parse the expression more carefully
-            # Replace - with +- to make splitting easier
-            i = i.replace("-", "+-")
-            parts = [part for part in i.split("+") if part]  # Remove empty strings
-
-            # Split combined dice inputs into dice piles
-            if "+" in i:
-                i = i.split("+")
-            
-            for part in parts:
-                if part.startswith("-"):
-                    # Negative part
-                    part = part[1:]  # Remove the - sign
+            # Process each multiplier iteration
+            for _ in range(multiplier):
+                roll_results = []
+                group_modifiers = 0
+                
+                # Parse dice and modifiers using replace method
+                dice_group_processed = dice_group.replace("-", "+-")
+                parts = [part for part in dice_group_processed.split("+") if part]
+                
+                for part in parts:
+                    is_negative = part.startswith("-")
+                    if is_negative:
+                        part = part[1:]  # Remove the minus sign
+                    
                     if "d" in part:
-                        negativeRolls.append(part)
+                        # It's a dice roll
+                        try:
+                            dice_parts = part.split("d")
+                            num_dice = int(dice_parts[0]) if dice_parts[0] else 1
+                            dice_sides = int(dice_parts[1])
+                            
+                            for _ in range(num_dice):
+                                roll = random.randint(1, dice_sides)
+                                if is_negative:
+                                    roll = -roll
+                                roll_results.append(roll)
+                        except (ValueError, IndexError):
+                            print(f"Invalid dice format: {part}")
                     elif part.isdigit():
-                        negativeInts.append(-int(part))
+                        # It's a modifier
+                        modifier = int(part)
+                        if is_negative:
+                            modifier = -modifier
+                        group_modifiers += modifier
+                
+                # Calculate total for this group
+                total = sum(roll_results) + group_modifiers
+                
+                # Format the result string
+                dice_rolled_string = f"Dice: {dice_group}"
+                if multiplier > 1:
+                    dice_rolled_string = f"({dice_group})x{multiplier}"
+                
+                roll_details = "+".join([str(r) for r in roll_results if r > 0])
+                negative_rolls = "".join([str(r) for r in roll_results if r < 0])
+                
+                if roll_details and negative_rolls:
+                    roll_breakdown = f"{roll_details}{negative_rolls}"
+                elif roll_details:
+                    roll_breakdown = roll_details
+                elif negative_rolls:
+                    roll_breakdown = negative_rolls
                 else:
-                    # Positive part
-                    if "d" in part:
-                        rolls.append(part)
-                    elif part.isdigit():
-                        positiveInts.append(int(part))
-                        
-        # REMOVE this entire duplicate section (lines 58-71):
-        # if isinstance(i, list):
-        #     for item in i:
-        #         if "d" in item:
-        #             rolls.append(item)
-        #         elif item.isdigit():
-        #             positiveInts.append(int(item))
-        # else:
-        #     # Handle single string case
-        #     if "d" in i:
-        #         rolls.append(i)
-        #     elif i.isdigit():
-        #         positiveInts.append(int(i))
-            
-            g=0
-            while g < diceRollMultiplier:
-                g +=1
-                if len(negativeRolls) > 0:
-                    for negativeRoll in negativeRolls:
-                        times_to_roll_negative_dice = int(negativeRoll.split("d")[0])
-                        negative_dice = int(negativeRoll.split("d")[1])
-                        i=0
-                        while i < times_to_roll_negative_dice:
-                            i += 1
-                            negative_roll_results.append(-random.randint(1, negative_dice))
-
-            g=0
-            while g < diceRollMultiplier:
-                g +=1
-                if len(rolls) > 0:
-                    for roll in rolls:
-                        times_to_roll_dice = int(roll.split("d")[0])
-                        dice = int(roll.split("d")[1])
-                        i=0
-                        while i < times_to_roll_dice:
-                            i += 1
-                            roll_results.append(random.randint(1, dice))
-            
-            if len(positiveInts) > 0:
-                positiveInt = sum(positiveInts)
-            else:
-                positiveInt = 0
-            if len(negativeInts) > 0:
-                negativeInt = sum(negativeInts)
-            else:
-                negativeInt = 0
-
-            # Calculate number modifier
-            modifierInt = positiveInt + negativeInt
-
-            # Formatting rollsStringer for rollsResults
-            rollsStringPositive = "+".join(rolls)
-            rollsStringNegative = "-".join(negativeRolls)
-            rollsString = f"{rollsStringPositive if rollsStringPositive != '' else ''}{f'-{rollsStringNegative}' if rollsStringNegative != '' else ''}"
-            rollsStringer = f"{f'({rollsString})x{diceRollMultiplier}' if diceRollMultiplier != 1 else rollsString}{f'+{modifierInt}' if modifierInt > 0 else ''}{f'{modifierInt}' if modifierInt < 0 else ''}"
-            
-            # Formatting the rollsResult item for return
-            roll_results_strings = list(map(str, roll_results))
-            roll_results_string = "+".join(roll_results_strings)
-            negative_roll_results_strings = list(map(str, negative_roll_results))
-            negative_roll_results_string = "".join(negative_roll_results_strings)
-            seperateRollsResult = f"{roll_results_string}{negative_roll_results_string if negative_roll_results_string != '' else ''}"
-
-            result = sum(roll_results) + sum(negative_roll_results) + modifierInt
-
-            # Adding roll(s) to the return list
-            rollsResults.append(f"""**Dice Input: **{rollsStringer}
-    --> **Dice Rolls:** {seperateRollsResult}(+{modifierInt}) = __**{result}**__""")
-            
-        # Return all formatted roll(s)
-        return(rollsResults) 
+                    roll_breakdown = "0"
+                
+                if group_modifiers != 0:
+                    if group_modifiers > 0:
+                        roll_breakdown += f"+{group_modifiers}"
+                    else:
+                        roll_breakdown += str(group_modifiers)
+                
+                results.append(f"{dice_rolled_string} --> {roll_breakdown} = {total}")
+        
+        return results

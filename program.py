@@ -70,27 +70,39 @@ async def on_message(message):
 # "Slash commands"
 #--------------------------------------
 # Dice roller command
-@bot.tree.command(name="roll", description="Roll dice (e.g., (2d10)x2,2d8 + 5d6, 1d8 )")
+@bot.tree.command(name="roll", description="Roll dice (e.g., '1d8,(1d20)x2,2d6+5' )")
 async def roll_slash(interaction: discord.Interaction, dice: str):
     """Slash command for rolling dice"""
     try:
         dice_roller_instance = dice_roller.Dice_Roller()
         results = dice_roller_instance.roll_dice(dice)
-        x = "\n\n".join(results)
+        x = "\n".join(results)
         await interaction.response.send_message(f">>> {x}")
     except Exception as e:
         await interaction.response.send_message(f"Error rolling dice: {e}")
 
-# Character Stats command
+# stat generation (4d6_drop_lowest)
 @bot.tree.command(name="4d6_drop_lowest", description="Rolls 4d6 and drops the lowest stat. Returns Rolled values and total scores in size order")
 async def ccFourDSix_slash(interaction: discord.Interaction):
     """Slash command for character creation based on 4d6 drop lowest method."""
     try:
         fourDSixDropLowest = character_creator.Character_Creator()
         stringResult, total_sum_rows = fourDSixDropLowest.roll_stats_FourDSix()
-        await interaction.response.send_message(f">>> \n{stringResult}\n Sum of all stats: {total_sum_rows}")
+        await interaction.response.send_message(f">>> ## Character Stats Rolled \n-# Using 4d6_drop_lowest system \n \n{stringResult}\n Sum of all stats: {total_sum_rows}")
     except Exception as e:
         await interaction.response.send_message(f"Error rolling dice: {e}")
+
+# Stat generation (StaticBase+DiceModifer)
+@bot.tree.command(name="base_modifier_dice", description="Takes a base value(ex. 13) and dice(ex. d6). Returns (base+roll1-roll2=result)x6")
+async def ccFourDSix_slash(interaction: discord.Interaction, base: int = 13, dice: str = "d6"):
+    """Slash command for character creation Takes a base value and dice. Returns base+roll1-roll2=result"""
+    try:
+        base_modifier_dice = character_creator.Character_Creator()
+        result, stat_total = base_modifier_dice.base_modifier_dice(base, dice)
+        result_string = "\n".join(result)
+        await interaction.response.send_message(f">>> ## Character Stats Rolled \n-# Using base_modifier_dice system\n\n{result_string}\n\nSum of all stats: {stat_total}")
+    except Exception as e:
+        await interaction.response.send_message(f"Error: {e}")
 
 # Add this slash command to your bot
 @bot.tree.command(name="inspire_me", description="Get the daily or a random inspiring quote from BOB himself")

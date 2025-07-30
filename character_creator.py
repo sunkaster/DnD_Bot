@@ -30,3 +30,26 @@ class Character_Creator:
             total_sum_rows += row_sum
 
         return(map_str, total_sum_rows)
+    
+
+    def base_modifier_dice(self, base: int, dice: str):
+        self.base = base
+        self.dice = 6
+        if dice.replace("d", "").isdigit():
+            self.dice = int(dice.replace("d", ""))
+        dice_values_rolled = []
+        for x in range(6):
+            dice_values_rolled.append(random.randint(1, self.dice))
+
+        result = []
+        stat_total_list = []
+        for v in range(5):
+            vv = v+1
+            row_result = self.base + dice_values_rolled[v] - dice_values_rolled[vv]
+            result.append(f"{self.base} + {dice_values_rolled[v]} - {dice_values_rolled[vv]} = {row_result}")
+            stat_total_list.append(row_result)
+        result.append(f"{self.base} + {dice_values_rolled[5]} - {dice_values_rolled[0]} = {self.base + dice_values_rolled[5] - dice_values_rolled[0]}")
+        stat_total_list.append(self.base + dice_values_rolled[5] - dice_values_rolled[0])
+        stat_total = sum(stat_total_list)
+
+        return(result, stat_total)

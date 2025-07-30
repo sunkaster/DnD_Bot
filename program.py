@@ -93,14 +93,14 @@ async def ccFourDSix_slash(interaction: discord.Interaction):
         await interaction.response.send_message(f"Error rolling dice: {e}")
 
 # Stat generation (StaticBase+DiceModifer)
-@bot.tree.command(name="base_modifier_dice", description="Takes a base value(ex. 13) and dice(ex. d6). Returns (base+roll1-roll2=result)x6")
+@bot.tree.command(name="base_modifier", description="Takes a base value(ex. 13) and dice(ex. d6). Returns (base+roll1-roll2=result)x6")
 async def ccFourDSix_slash(interaction: discord.Interaction, base: int = 13, dice: str = "d6"):
     """Slash command for character creation Takes a base value and dice. Returns base+roll1-roll2=result"""
     try:
         base_modifier_dice = character_creator.Character_Creator()
         result, stat_total = base_modifier_dice.base_modifier_dice(base, dice)
         result_string = "\n".join(result)
-        await interaction.response.send_message(f">>> ## Character Stats Rolled \n-# Using base_modifier_dice system\n\n{result_string}\n\nSum of all stats: {stat_total}")
+        await interaction.response.send_message(f">>> ## Character Stats Rolled \n-# Using base_modifier_system system\n\n{result_string}\n\nSum of all stats: {stat_total}")
     except Exception as e:
         await interaction.response.send_message(f"Error: {e}")
 

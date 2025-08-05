@@ -10,6 +10,7 @@ The triple backticks (```) create the gray textbox effect you're looking for!
 
 import dice_roller
 import character_creator
+import pointBuyCalculator
 import os
 from dotenv import load_dotenv
 import discord
@@ -104,7 +105,18 @@ async def ccFourDSix_slash(interaction: discord.Interaction, base: int = 13, dic
     except Exception as e:
         await interaction.response.send_message(f"Error: {e}")
 
-# Add this slash command to your bot
+# Point buy Calculator
+@bot.tree.command(name="point_buy_calculator", description="Interactable point buy calculator. Configurable")
+async def configurable_point_buy_slash(interaction: discord.Interaction):
+    """Configurable point buy character creation"""
+    try:
+        calculator = pointBuyCalculator.PointBuyCalculator()
+        embed = calculator.create_embed()
+        await interaction.response.send_message(embed=embed, view=calculator)
+    except Exception as e:
+        await interaction.response.send_message(f"ERROR: {e}")
+
+# inspirational quote command
 @bot.tree.command(name="inspire_me", description="Get the daily or a random inspiring quote from BOB himself")
 async def quote_slash(interaction: discord.Interaction, type: str = "random"):
     """Slash command for getting quotes"""

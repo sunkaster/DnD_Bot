@@ -34,7 +34,7 @@ cd DnD_Bot
 
 ### 3. Run with Docker (Recommended)
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### 3.5 Update program and run with docker

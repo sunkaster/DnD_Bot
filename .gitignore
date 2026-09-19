@@ -204,3 +204,4 @@ __marimo__/
 
 # .env Folder for Docker
 .env
+the_word_library.json

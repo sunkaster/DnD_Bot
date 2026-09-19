@@ -5,7 +5,7 @@ Italic: *text*
 Underline: __text__
 Strikethrough: ~~text~~s
 Spoiler: ||text||
-The triple backticks (```) create the gray textbox effect you're looking for!
+The triple backticks (```) create the gray textbox effect
 '''
 
 import dice_roller
@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import quotes
+import random
 
 # Load environmental variables into system and check if the variable is loaded
 load_result = load_dotenv()
@@ -139,6 +140,21 @@ async def quote_slash(interaction: discord.Interaction, type: str = "random"):
     except Exception as e:
         await interaction.response.send_message(f"Error fetching quote: {e}")
 
+@bot.tree.command(name="the_word_library", description="Make BOB open the Word Library and quote a passage from within it's depths")
+async def wordLibrary(interaction: discord.Interaction):
+    """The world library holds secrets untold across all of time"""
+    try:
+        quote = quote_cache.get_random_word_library_quote()
+        if quote:
+            quote_text = quote['text']
+            quote_author = quote['author']
+            formatted_quote = f'*"{quote_text}"*\n\n— **//{quote_author}**'
+            await interaction.response.send_message(formatted_quote)
+        else:
+            await interaction.response.send_message(">>> The Word Library is silent for now. Try again later.")
+    except Exception as e:
+        await interaction.response.send_message(f"ERROR: {e}")
+
 # Hello
 @bot.tree.command(name="hello", description="say hello")
 async def hello_slash(interaction: discord.Interaction):
@@ -147,9 +163,3 @@ async def hello_slash(interaction: discord.Interaction):
 #----------------------------------------
 
 bot.run(api_key)
-
-"""program_should_close = False
-while not program_should_close: {
-    
-
-}"""

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-import requests
+import json
 import random
+import requests
 
 # Quote caching system
 class QuoteCache:
@@ -9,7 +10,46 @@ class QuoteCache:
         self.last_refresh = None
         self.daily_quote = None
         self.daily_quote_date = None
-    
+        self.word_library = self.load_word_library()
+
+    def load_word_library(self):
+        """Load the local word library JSON file into memory."""
+        try:
+            with open("the_word_library.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+                return {str(key): value for key, value in data.items()}
+        except FileNotFoundError:
+            print("Word library file not found.")
+            return {}
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON in word library: {e}")
+            return {}
+
+    def get_random_word_library_quote(self):
+        """Get a random quote from the local word library."""
+        if not self.word_library:
+            self.word_library = self.load_word_library()
+
+        if not self.word_library:
+            return None
+
+        available_keys = sorted(int(key) for key in self.word_library.keys())
+        if not available_keys:
+            return None
+
+        selected_key = random.randint(1, max(available_keys))
+        quote_entry = self.word_library.get(str(selected_key))
+
+        if quote_entry is None:
+            fallback_key = random.choice(available_keys)
+            quote_entry = self.word_library.get(str(fallback_key))
+
+        if not quote_entry:
+            return None
+
+        text, author = quote_entry
+        return {'text': text, 'author': author}
+
     def needs_refresh(self):
         """Check if cache needs to be refreshed (once per day)"""
         if not self.last_refresh:

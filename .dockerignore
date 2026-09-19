@@ -10,6 +10,7 @@
 **/.classpath
 **/.dockerignore
 **/.env
+**/the_word_library.json
 **/.git
 **/.gitignore
 **/.project

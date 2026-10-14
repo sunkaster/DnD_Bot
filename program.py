@@ -146,9 +146,10 @@ async def wordLibrary(interaction: discord.Interaction):
     try:
         quote = quote_cache.get_random_word_library_quote()
         if quote:
+            quote_number = int(quote)
             quote_text = quote['text']
             quote_author = quote['author']
-            formatted_quote = f'*"{quote_text}"*\n\n— **//{quote_author}**'
+            formatted_quote = f'Passage {quote_number}:\n\n*"{quote_text}"*\n   — **//{quote_author}**'
             await interaction.response.send_message(formatted_quote)
         else:
             await interaction.response.send_message(">>> The Word Library is silent for now. Try again later.")

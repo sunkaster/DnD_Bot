@@ -25,8 +25,8 @@ class QuoteCache:
             print(f"Invalid JSON in word library: {e}")
             return {}
 
-    def get_random_word_library_quote(self):
-        """Get a random quote from the local word library."""
+    def get_word_library_quote(self, quote_number=None):
+        """Get a specific quote by number or a random one if no number is provided."""
         if not self.word_library:
             self.word_library = self.load_word_library()
 
@@ -37,18 +37,30 @@ class QuoteCache:
         if not available_keys:
             return None
 
-        selected_key = random.randint(1, max(available_keys))
-        quote_entry = self.word_library.get(str(selected_key))
-
-        if quote_entry is None:
-            fallback_key = random.choice(available_keys)
-            quote_entry = self.word_library.get(str(fallback_key))
-
-        if not quote_entry:
-            return None
+        if quote_number is not None:
+            try:
+                selected_key = int(quote_number)
+            except (TypeError, ValueError):
+                return None
+            quote_entry = self.word_library.get(str(selected_key))
+            if not quote_entry:
+                return None
+        else:
+            selected_key = random.choice(available_keys)
+            quote_entry = self.word_library.get(str(selected_key))
+            if not quote_entry:
+                return None
 
         text, author = quote_entry
-        return {'text': text, 'author': author}
+        return {
+            'number': selected_key,
+            'text': text,
+            'author': author
+        }
+
+    def get_random_word_library_quote(self):
+        """Backward-compatible random quote lookup."""
+        return self.get_word_library_quote()
 
     def needs_refresh(self):
         """Check if cache needs to be refreshed (once per day)"""

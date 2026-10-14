@@ -141,18 +141,21 @@ async def quote_slash(interaction: discord.Interaction, type: str = "random"):
         await interaction.response.send_message(f"Error fetching quote: {e}")
 
 @bot.tree.command(name="the_word_library", description="Make BOB open the Word Library and quote a passage from within it's depths")
-async def wordLibrary(interaction: discord.Interaction):
-    """The world library holds secrets untold across all of time"""
+async def wordLibrary(interaction: discord.Interaction, quote_number: int = None):
+    """The world library holds secrets untold across all of time. Leave the number blank for a random quote."""
     try:
-        quote = quote_cache.get_random_word_library_quote()
+        quote = quote_cache.get_word_library_quote(quote_number)
         if quote:
-            quote_number = int(quote)
+            quote_number = quote.get('number')
             quote_text = quote['text']
             quote_author = quote['author']
             formatted_quote = f'Passage {quote_number}:\n\n*"{quote_text}"*\n   — **//{quote_author}**'
             await interaction.response.send_message(formatted_quote)
         else:
-            await interaction.response.send_message(">>> The Word Library is silent for now. Try again later.")
+            if quote_number is not None:
+                await interaction.response.send_message(f">>> The Word Library has no passage numbered {quote_number}.")
+            else:
+                await interaction.response.send_message(">>> The Word Library is silent for now. Try again later.")
     except Exception as e:
         await interaction.response.send_message(f"ERROR: {e}")
 
